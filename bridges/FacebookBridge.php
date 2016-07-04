@@ -20,7 +20,7 @@ class FacebookBridge extends BridgeAbstract{
 	}
 
 	public function collectData(array $param) {
-
+	    
 		//Extract a string using start and end delimiters
 		function ExtractFromDelimiters($string, $start, $end) {
 			if (strpos($string, $start) !== false) {
@@ -107,11 +107,12 @@ class FacebookBridge extends BridgeAbstract{
 
 		//Retrieve page contents
 		if (is_null($html)) {
+		    
 			if (isset($param['u'])) {
 				if (!strpos($param['u'], "/")) {
-					$html = $this->file_get_html('https://www.facebook.com/'.urlencode($param['u']).'?_fb_noscript=1') or $this->returnError('No results for this query.', 404);
+					$html = $this->file_get_html('http://hefefbrss.azurewebsites.net/gce?path='.urlencode($param['u']).'?_fb_noscript=1') or $this->returnError('No results for this query.', 404);
 				} else {
-					$html = $this->file_get_html('https://www.facebook.com/pages/'.$param['u'].'?_fb_noscript=1') or $this->returnError('No results for this query.', 404);
+					$html = $this->file_get_html('http://hefefbrss.azurewebsites.net/gce?path='.$param['u'].'?_fb_noscript=1') or $this->returnError('No results for this query.', 404);
 				}
 			} else {
 				$this->returnError('You must specify a Facebook username.', 400);
@@ -122,6 +123,7 @@ class FacebookBridge extends BridgeAbstract{
 		$captcha = $html->find('div.captcha_interstitial', 0);
 		if (!is_null($captcha))
 		{
+		    /*
 			//Save form for submitting after getting captcha response
 			if (session_status() == PHP_SESSION_NONE)
 				session_start();
@@ -143,13 +145,14 @@ class FacebookBridge extends BridgeAbstract{
 				.'<p><b>Response:</b> <input name="captcha_response" placeholder="please fill in" />'
 				.'<input type="submit" value="Submit!" /></p>'
 				.'</form>');
+		    */
+		    header("Refresh:0");
 		}
 
 		//No captcha? We can carry on retrieving page contents :)
 		$element = $html->find('#pagelet_timeline_main_column')[0]->children(0)->children(0)->children(0)->next_sibling()->children(0);
 
 		if(isset($element)) {
-
 			$author = str_replace(' | Facebook', '', $html->find('title#pageTitle', 0)->innertext);
 			$profilePic = 'https://graph.facebook.com/'.$param['u'].'/picture?width=200&amp;height=200';
 			$this->name = $author;
@@ -231,6 +234,6 @@ class FacebookBridge extends BridgeAbstract{
 	}
 
 	public function getCacheDuration() {
-		return 300; // 5 minutes
+		return 10; // 5 minutes
 	}
 }
